@@ -1,4 +1,4 @@
-# Install Istio with Consul in a simple Docker Compose setup
+# Install Istio using Nomad
 
 Please follow the installation instructions from [istio.io](https://istio.io/docs/setup/consul/).
 
