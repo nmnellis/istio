@@ -733,6 +733,15 @@ go_repository(
 #     importpath = "github.com/gogo/protobuf",
 # )
 
+
+
+go_repository(
+    name = "com_github_natefinch_lumberjack_v2",
+    commit = "a96e63847dc3c67d17befa69c303767e2f84e54f",
+    importpath = "gopkg.in/natefinch/lumberjack.v2",
+
+)
+
 go_repository(
     name = "com_github_golang_glog",
     commit = "44145f04b68cf362d9c4df2182967c2275eaefed",
