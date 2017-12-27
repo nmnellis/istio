@@ -31,11 +31,11 @@ go_library(
     ],
 )
 
-filegroup(
-    name = "kubeconfig",
-    srcs = ["config"],
-    visibility = ["//visibility:public"],
-)
+# filegroup(
+#     name = "kubeconfig",
+#     srcs = ["config"],
+#     visibility = ["//visibility:public"],
+# )
 
 go_test(
     name = "go_default_test",

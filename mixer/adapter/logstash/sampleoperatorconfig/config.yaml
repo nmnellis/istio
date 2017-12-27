@@ -1,0 +1,52 @@
+# instance configuration for template 'logentry'
+apiVersion: "config.istio.io/v1alpha2"
+kind: logentry
+metadata:
+ name: elk-accesslog
+ namespace: istio-system
+spec:
+  severity: '"Default"'
+  timestamp: request.time | timestamp("1979-01-01T00:00:00Z")
+  variables:
+    request_path: request.path | ""
+    request_protocol: request.scheme | "http"
+    request_method: request.method | ""
+    source_ip: source.ip | ip("0.0.0.0")
+    source_name: source.name | "unknown"
+    source_namespace: source.namespace | "unknown"
+    source_service: source.service | "unknown"
+    source_version: source.labels["version"] | "unknown"
+    destination_ip: destination.ip | ip("0.0.0.0")
+    destination_name: destination.name | "unknown"
+    destination_namespace: destination.namespace | "unknown"
+    destination_service: destination.service | "unknown"
+    destination_version: destination.labels["version"] | "unknown"
+    response_code: response.code | 0
+    request_size: request.size | 0
+    respose_duration: response.duration | "0ms"
+    response_size: response.size | 0
+    tcp_bytes_sent: connection.sent.bytes | 0
+    tcp_bytes_received: connection.received.bytes | 0
+  monitored_resource_type: '"UNSPECIFIED"'
+---
+# handler configuration for adapter 'logentry'
+apiVersion: "config.istio.io/v1alpha2"
+kind: logstash
+metadata:
+ name: handler
+ namespace: istio-system
+spec:
+ file_path: "/tmp/accesslogs/out.txt"
+---
+# rule to dispatch to your handler
+apiVersion: "config.istio.io/v1alpha2"
+kind: rule
+metadata:
+ name: logstash
+ namespace: istio-system
+spec:
+ match: "true"
+ actions:
+ - handler: handler.logstash
+   instances:
+   - elk-accesslog.logentry
