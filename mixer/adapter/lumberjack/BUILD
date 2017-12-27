@@ -4,10 +4,10 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "go_default_library",
-    srcs = ["logstash.go"],
+    srcs = ["lumberjack.go"],
     visibility = ["//visibility:public"],
     deps = [
-        "//mixer/adapter/logstash/config:go_default_library",
+        "//mixer/adapter/lumberjack/config:go_default_library",
         "//mixer/pkg/adapter:go_default_library",
         "//mixer/template/metric:go_default_library",
         "//mixer/template/logentry:go_default_library",

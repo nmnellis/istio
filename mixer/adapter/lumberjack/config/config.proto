@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package adapter.logstash.config;
+package adapter.lumberjack.config;
 
 import "google/protobuf/duration.proto";
 import "gogoproto/gogo.proto";

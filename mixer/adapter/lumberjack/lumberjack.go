@@ -1,4 +1,4 @@
-package logstash
+package lumberjack
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 
 	"time"
 	"path/filepath"
-	config "istio.io/istio/mixer/adapter/logstash/config"
+	config "istio.io/istio/mixer/adapter/lumberjack/config"
 	"istio.io/istio/mixer/pkg/adapter"
 	"istio.io/istio/mixer/template/logentry"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -61,14 +61,14 @@ func (b *builder) Validate() (ce *adapter.ConfigErrors) {
 
 func (b *builder) SetLogEntryTypes(types map[string]*logentry.Type) { b.logEntryTypes = types }
 
-// LogUnit for logging in logstash format
+// LogUnit for logging in json format
 type LogUnit struct {
 	Message map[string]interface{} `json:"message"`
 	Timestamp time.Time `json:"@timestamp"`
 }
 
 ////////////////// Request-time Methods //////////////////////////
-// logentry.Handler#HandleMetric
+// logentry.Handler#HandleLogEntry
 func (h *handler) HandleLogEntry(_ context.Context, instances []*logentry.Instance) error {
 	for _, instance := range instances {
 
@@ -92,8 +92,8 @@ func (h *handler) Close() error {
 // GetInfo returns the adapter.Info specific to this adapter.
 func GetInfo() adapter.Info {
 	return adapter.Info{
-		Name:        "logstash",
-		Description: "Logs the calls into a logstash compatible json file",
+		Name:        "lumberjack",
+		Description: "Logs LogEntry itmes to a json file",
 		SupportedTemplates: []string{
 			logentry.TemplateName,
 		},

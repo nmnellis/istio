@@ -42,7 +42,7 @@ spec:
 ---
 # handler configuration for adapter 'metric'
 apiVersion: "config.istio.io/v1alpha2"
-kind: logstash
+kind: lumberjack
 metadata:
  name: handler
  namespace: istio-system
@@ -53,11 +53,11 @@ spec:
 apiVersion: "config.istio.io/v1alpha2"
 kind: rule
 metadata:
- name: logstash
+ name: lumberjack
  namespace: istio-system
 spec:
  match: "true"
  actions:
- - handler: handler.logstash
+ - handler: handler.lumberjack
    instances:
    - accesslog.metric

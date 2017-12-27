@@ -1,7 +1,7 @@
 version: '2'
 services:
   mixer:
-    image: istio-mixer:logstash-v2
+    image: istio-mixer:lumberjack-v2
     command: ["--configStore2URL=fs://config/","--configStoreURL=fs://config/"]
     volumes:
       - ./config:/config

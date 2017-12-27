@@ -18,7 +18,7 @@ inventory_library(
         "stdio": "istio.io/istio/mixer/adapter/stdio",
         "memquota": "istio.io/istio/mixer/adapter/memquota",
         "circonus": "istio.io/istio/mixer/adapter/circonus",
-        "logstash": "istio.io/istio/mixer/adapter/logstash",
+        "lumberjack": "istio.io/istio/mixer/adapter/lumberjack",
     },
     deps = [
         "//mixer/adapter/circonus:go_default_library",
@@ -33,6 +33,6 @@ inventory_library(
         "//mixer/adapter/statsd:go_default_library",
         "//mixer/adapter/stdio:go_default_library",
         "//mixer/adapter/svcctrl:go_default_library",
-        "//mixer/adapter/logstash:go_default_library",
+        "//mixer/adapter/lumberjack:go_default_library",
     ],
 )

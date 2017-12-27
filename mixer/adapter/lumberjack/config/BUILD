@@ -19,7 +19,7 @@ gogoslick_proto_library(
     protos = [
         "config.proto",
     ],
-    visibility = ["//mixer/adapter/logstash:__pkg__"],
+    visibility = ["//mixer/adapter/lumberjack:__pkg__"],
     deps = [
         "@com_github_gogo_protobuf//gogoproto:go_default_library",
         "@com_github_gogo_protobuf//types:go_default_library",

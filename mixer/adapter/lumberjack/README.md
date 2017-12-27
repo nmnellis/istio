@@ -1,10 +1,10 @@
-# Logstash compatible mixer adapter
-Logs data to a logstash compatible json file using [lumberjack](https://github.com/natefinch/lumberjack)
+# lumberjack compatible mixer adapter
+Logs data to a lumberjack compatible json file using [lumberjack](https://github.com/natefinch/lumberjack)
 Log files are rotated and cleaned up based on size and date.
 
 
 
-## Example logstash access loggging
+## Example lumberjack access loggging
 The below setup writes access logs from the istio proxies to a file called `/accesslogs/accesslogs-v1.json`
 
 ## Kubernetes CRD
@@ -13,16 +13,16 @@ The below setup writes access logs from the istio proxies to a file called `/acc
 kind: CustomResourceDefinition
 apiVersion: apiextensions.k8s.io/v1beta1
 metadata:
-  name: logstash.config.istio.io
+  name: lumberjack.config.istio.io
   labels:
-    package: logstash
+    package: lumberjack
     istio: mixer-adapter
 spec:
   group: config.istio.io
   names:
-    kind: logstash
-    plural: logstash
-    singular: logstash
+    kind: lumberjack
+    plural: lumberjack
+    singular: lumberjack
   scope: Namespaced
   version: v1alpha2
 ```
@@ -66,7 +66,7 @@ spec:
 
 ```yaml
 apiVersion: "config.istio.io/v1alpha2"
-kind: logstash
+kind: lumberjack
 metadata:
   name: handler
   namespace: istio-system
@@ -80,18 +80,18 @@ spec:
 apiVersion: "config.istio.io/v1alpha2"
 kind: rule
 metadata:
-  name: logstash
+  name: lumberjack
   namespace: istio-system
 spec:
  match: "true"
   actions:
-  - handler: handler.logstash
+  - handler: handler.lumberjack
     instances:
     - elk-accesslog.logentry
 ```
 
 
-## Example logstash config
+## Example lumberjack config
 
 
 ```
@@ -111,7 +111,7 @@ filter {
 output {
   if "_grokparsefailure" in [tags] {
     file {
-      path => "/var/log/logstash/failed_groks.log"
+      path => "/var/log/lumberjack/failed_groks.log"
     }
   }
 
