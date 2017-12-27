@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package adapter.lumberjack.config;
+
+import "google/protobuf/duration.proto";
+import "gogoproto/gogo.proto";
+
+option go_package="config";
+
+message Params {
+    // Path of the file to save the information about runtime requests.
+    string file_path = 1;
+    // MaxSize is the maximum size in megabytes of the log file before it gets
+    // rotated.
+    int32 max_file_size = 2;
+
+    // MaxAge is the maximum number of days to retain old log files based on the
+    // timestamp encoded in their filename.  Note that a day is defined as 24
+    // hours and may not exactly correspond to calendar days due to daylight
+    // savings, leap seconds, etc.
+    int32 max_file_age = 3;
+
+    // MaxBackups is the maximum number of old log files to retain.
+    int32 max_file_backups = 4;
+
+    // Compress determines if the rotated log files should be compressed
+    // using gzip.
+    bool compress_old_files = 5;
+
+}

@@ -1,15 +1,16 @@
-package logstash
+package lumberjack
 
 import (
 	"context"
 	"encoding/json"
 
-	"time"
 	"path/filepath"
-	config "istio.io/istio/mixer/adapter/logstash/config"
+	"time"
+
+	"gopkg.in/natefinch/lumberjack.v2"
+	config "istio.io/istio/mixer/adapter/lumberjack/config"
 	"istio.io/istio/mixer/pkg/adapter"
 	"istio.io/istio/mixer/template/logentry"
-	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 type (
@@ -18,16 +19,16 @@ type (
 		logEntryTypes map[string]*logentry.Type
 	}
 	handler struct {
-		l							*lumberjack.Logger
+		l             *lumberjack.Logger
 		logEntryTypes map[string]*logentry.Type
-		env         	adapter.Env
+		env           adapter.Env
 	}
 )
 
 // ensure types implement the requisite interfaces
-var(
+var (
 	_ logentry.HandlerBuilder = &builder{}
-	_ logentry.Handler = &handler{}
+	_ logentry.Handler        = &handler{}
 )
 
 ///////////////// Configuration-time Methods ///////////////
@@ -35,11 +36,12 @@ var(
 // adapter.HandlerBuilder#Build
 func (b *builder) Build(ctx context.Context, env adapter.Env) (adapter.Handler, error) {
 	var err error
-	logger := &lumberjack.Logger {
-			Filename:   b.adapterConfig.FilePath,
-			MaxSize:    100, // megabytes
-			MaxAge:     7, // days
-			MaxBackups:  100, // 100 files of 100MB (1GB max retention)
+	logger := &lumberjack.Logger{
+		Filename:   b.adapterConfig.FilePath,
+		MaxSize:    int(b.adapterConfig.MaxFileSize), // megabytes
+		MaxAge:     int(b.adapterConfig.MaxFileAge),  // days
+		MaxBackups: int(b.adapterConfig.MaxFileBackups),
+		Compress:   b.adapterConfig.CompressOldFiles,
 	}
 	return &handler{l: logger, logEntryTypes: b.logEntryTypes, env: env}, err
 
@@ -61,24 +63,23 @@ func (b *builder) Validate() (ce *adapter.ConfigErrors) {
 
 func (b *builder) SetLogEntryTypes(types map[string]*logentry.Type) { b.logEntryTypes = types }
 
-// LogUnit for logging in logstash format
+// LogUnit for logging in json format
 type LogUnit struct {
-	Message map[string]interface{} `json:"message"`
-	Timestamp time.Time `json:"@timestamp"`
+	LogEntry  map[string]interface{} `json:"logEntry"`
+	Timestamp time.Time              `json:"@timestamp"`
 }
 
 ////////////////// Request-time Methods //////////////////////////
-// logentry.Handler#HandleMetric
+// logentry.Handler#HandleLogEntry
 func (h *handler) HandleLogEntry(_ context.Context, instances []*logentry.Instance) error {
 	for _, instance := range instances {
 
-		logUnit := &LogUnit{Message: instance.Variables,Timestamp: instance.Timestamp}
+		logUnit := &LogUnit{LogEntry: instance.Variables, Timestamp: instance.Timestamp}
 		b, _ := json.Marshal(logUnit)
 
 		//write logentry to log and newline it
-		h.l.Write(b)
-		h.l.Write([]byte("\n"))
-
+		newline := []byte("\n")
+		h.l.Write(append(b[:], newline[:]...))
 	}
 	return nil
 }
@@ -92,14 +93,12 @@ func (h *handler) Close() error {
 // GetInfo returns the adapter.Info specific to this adapter.
 func GetInfo() adapter.Info {
 	return adapter.Info{
-		Name:        "logstash",
-		Description: "Logs the calls into a logstash compatible json file",
+		Name:        "lumberjack",
+		Description: "Logs LogEntry itmes to a json file",
 		SupportedTemplates: []string{
 			logentry.TemplateName,
 		},
 		NewBuilder:    func() adapter.HandlerBuilder { return &builder{} },
-		DefaultConfig: &config.Params{
-
-		},
+		DefaultConfig: &config.Params{},
 	}
 }
