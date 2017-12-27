@@ -37,9 +37,10 @@ func (b *builder) Build(ctx context.Context, env adapter.Env) (adapter.Handler, 
 	var err error
 	logger := &lumberjack.Logger {
 			Filename:   b.adapterConfig.FilePath,
-			MaxSize:    100, // megabytes
-			MaxAge:     7, // days
-			MaxBackups:  100, // 100 files of 100MB (1GB max retention)
+			MaxSize:    b.adapterConfig.MaxFileSize, // megabytes
+			MaxAge:     b.adapterConfig.MaxFileAge, // days
+			MaxBackups:	b.adapterConfig.MaxFileBackups,
+			Compress:		b.adapterConfig.CompressOldFiles,
 	}
 	return &handler{l: logger, logEntryTypes: b.logEntryTypes, env: env}, err
 
@@ -63,7 +64,7 @@ func (b *builder) SetLogEntryTypes(types map[string]*logentry.Type) { b.logEntry
 
 // LogUnit for logging in json format
 type LogUnit struct {
-	Message map[string]interface{} `json:"message"`
+	LogEntry map[string]interface{} `json:"logEntry"`
 	Timestamp time.Time `json:"@timestamp"`
 }
 
@@ -72,13 +73,11 @@ type LogUnit struct {
 func (h *handler) HandleLogEntry(_ context.Context, instances []*logentry.Instance) error {
 	for _, instance := range instances {
 
-		logUnit := &LogUnit{Message: instance.Variables,Timestamp: instance.Timestamp}
+		logUnit := &LogUnit{LogEntry: instance.Variables,Timestamp: instance.Timestamp}
 		b, _ := json.Marshal(logUnit)
 
 		//write logentry to log and newline it
-		h.l.Write(b)
-		h.l.Write([]byte("\n"))
-
+		h.l.Write(b append(b[:], []byte("\n")))
 	}
 	return nil
 }
