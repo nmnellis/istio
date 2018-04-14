@@ -128,6 +128,7 @@ func TestGateway_ExternalService(t *testing.T) {
 		YamlFiles: []string{
 			"testdata/v1alpha3/external-service-dog.yaml",
 			"testdata/v1alpha3/rule-ingressgateway-externalservice.yaml",
+			"testdata/v1alpha3/ingressgateway.yaml",
 		},
 	}
 	if err := cfgs.Setup(); err != nil {
