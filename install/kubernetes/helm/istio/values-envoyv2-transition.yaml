@@ -8,7 +8,7 @@ global:
     enabled: false
 
 ingress:
-  enabled: true
+  enabled: false
   service:
     nodePort:
       enabled: true
@@ -26,10 +26,10 @@ ingressgateway:
   enabled: true
 
 egressgateway:
-  enabled: true
+  enabled: false
 
 zipkin:
-  enabled: true
+  enabled: false
 
 sidecar-injector:
-  enabled: true
+  enabled: false

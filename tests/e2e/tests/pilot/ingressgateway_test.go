@@ -112,3 +112,39 @@ func TestGateway_TCP(t *testing.T) {
 		}
 	})
 }
+
+func TestGateway_ExternalService(t *testing.T) {
+	if !tc.V1alpha3 {
+		t.Skipf("Skipping %s: V1alpha3=false", t.Name())
+	}
+	// TODO: use current namespace so test doesn't require --cluster_wide flag
+	// circle CI always runs with --cluster_wide, and its required for gateway tests atm due to
+	// gateway resource only being created in istio-system namespace
+	istioNamespace := tc.Kube.IstioSystemNamespace()
+	ingressGatewayServiceName := tc.Kube.IstioIngressGatewayService()
+
+	cfgs := &deployableConfig{
+		Namespace: istioNamespace,
+		YamlFiles: []string{
+			"testdata/v1alpha3/external-service-dog.yaml",
+			"testdata/v1alpha3/rule-ingressgateway-externalservice.yaml",
+		},
+	}
+	if err := cfgs.Setup(); err != nil {
+		t.Fatal(err)
+	}
+	defer cfgs.Teardown()
+
+	t.Run("IngressGatewayToExternalService", func(t *testing.T) {
+		reqURL := fmt.Sprintf("http://%s.%s/api/breeds/list/all", ingressGatewayServiceName, istioNamespace)
+
+		resp := ClientRequest("t", reqURL, 1, "-key Host -val dog.ceo")
+
+		if resp.IsHTTPOk() {
+			return
+		}
+		t.Errorf("Error calling external service %s %v %v %v", reqURL, resp.Code,resp.Body,resp.Host)
+		//return errAgain
+
+	})
+}

@@ -15,6 +15,7 @@ spec:
       protocol: HTTP
     hosts:
     - uk.bookinfo.com
+    - dog.ceo
     #tls:
     #  httpsRedirect: true # sends 302 redirect for http requests
   - port:
