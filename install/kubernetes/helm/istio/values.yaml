@@ -186,7 +186,7 @@ gateways:
       #requests:
       #  cpu: 1800m
       #  memory: 256Mi
-
+    #loadBalancerSourceRanges:
     loadBalancerIP: ""
     serviceAnnotations: {}
     type: LoadBalancer #change to NodePort, ClusterIP or LoadBalancer if need be
