@@ -310,13 +310,13 @@ func handleEvent(s *Server) {
 		err = s.CA.GetCAKeyCertBundle().UpdateVerifiedKeyCertBundleFromFile(
 			path.Join(LocalCertDir.Get(), TLSSecretFormatCACertFile),
 			path.Join(LocalCertDir.Get(), TLSSecretFormatCAKeyFile),
-			"",
+			[]string{path.Join(LocalCertDir.Get(), TLSSecretFormatCACertFile),path.Join(LocalCertDir.Get(), TLSSecretFormatRootCertFile)},
 			path.Join(LocalCertDir.Get(), TLSSecretFormatRootCertFile))
 	} else {
 		err = s.CA.GetCAKeyCertBundle().UpdateVerifiedKeyCertBundleFromFile(
 			path.Join(LocalCertDir.Get(), ca.CACertFile),
 			path.Join(LocalCertDir.Get(), ca.CAPrivateKeyFile),
-			path.Join(LocalCertDir.Get(), ca.CertChainFile),
+			[]string{path.Join(LocalCertDir.Get(), ca.CertChainFile)},
 			path.Join(LocalCertDir.Get(), ca.RootCertFile))
 	}
 	if err != nil {
@@ -457,14 +457,14 @@ func (s *Server) createIstioCA(client corev1.CoreV1Interface, opts *caOptions) (
 		// The cert corresponding to the key, self-signed or chain.
 		// rootCertFile will be added at the end, if present, to form 'rootCerts'.
 		signingCertFile := path.Join(LocalCertDir.Get(), ca.CACertFile)
-		certChainFile := path.Join(LocalCertDir.Get(), ca.CertChainFile)
+		certChainFiles := []string{path.Join(LocalCertDir.Get(), ca.CertChainFile)}
 
 		if useK8sTLSSecretCertFormat.Get() {
 			signingCertFile = path.Join(LocalCertDir.Get(), TLSSecretFormatCACertFile)
-			certChainFile = ""
+			certChainFiles = []string{path.Join(LocalCertDir.Get(), TLSSecretFormatCACertFile),path.Join(LocalCertDir.Get(), TLSSecretFormatRootCertFile)}
 		}
 
-		caOpts, err = ca.NewPluggedCertIstioCAOptions(certChainFile, signingCertFile, signingKeyFile,
+		caOpts, err = ca.NewPluggedCertIstioCAOptions(certChainFiles, signingCertFile, signingKeyFile,
 			rootCertFile, workloadCertTTL.Get(), maxWorkloadCertTTL.Get(), caRSAKeySize.Get())
 		if err != nil {
 			return nil, fmt.Errorf("failed to create an istiod CA: %v", err)
