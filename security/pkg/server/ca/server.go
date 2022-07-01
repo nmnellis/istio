@@ -82,6 +82,7 @@ func (s *Server) CreateCertificate(ctx context.Context, request *pb.IstioCertifi
 	certSigner := crMetadata[security.CertSigner].GetStringValue()
 	log.Debugf("cert signer from workload %s", certSigner)
 	_, _, certChainBytes, rootCertBytes := s.ca.GetCAKeyCertBundle().GetAll()
+	log.Debugf("Got all. %s  \n\n %s\n\n", string(certChainBytes),string(rootCertBytes))
 	certOpts := ca.CertOpts{
 		SubjectIDs: caller.Identities,
 		TTL:        time.Duration(request.ValidityDuration) * time.Second,
@@ -93,6 +94,8 @@ func (s *Server) CreateCertificate(ctx context.Context, request *pb.IstioCertifi
 	var respCertChain []string
 	if certSigner == "" {
 		cert, signErr = s.ca.Sign([]byte(request.Csr), certOpts)
+			log.Debugf("signed cert signer nil %s", string(cert))
+
 	} else {
 		respCertChain, signErr = s.ca.SignWithCertChain([]byte(request.Csr), certOpts)
 	}
@@ -106,6 +109,7 @@ func (s *Server) CreateCertificate(ctx context.Context, request *pb.IstioCertifi
 		if len(certChainBytes) != 0 {
 			respCertChain = append(respCertChain, string(certChainBytes))
 		}
+		log.Debugf("signed cert chain %s", respCertChain)
 	}
 	if len(rootCertBytes) != 0 {
 		respCertChain = append(respCertChain, string(rootCertBytes))
@@ -115,6 +119,7 @@ func (s *Server) CreateCertificate(ctx context.Context, request *pb.IstioCertifi
 	}
 	s.monitoring.Success.Increment()
 	serverCaLog.Debug("CSR successfully signed.")
+	log.Debugf("CSR successfully signed. %s", certSigner)
 	return response, nil
 }
 
