@@ -110,6 +110,8 @@ func (c *CitadelClient) CSRSign(csrPEM []byte, certValidTTLInSec int64) ([]strin
 		return nil, fmt.Errorf("create certificate: %v", err)
 	}
 
+	log.Infof("Nick Certificate Response %v", resp)
+
 	if len(resp.CertChain) <= 1 {
 		return nil, errors.New("invalid empty CertChain")
 	}
