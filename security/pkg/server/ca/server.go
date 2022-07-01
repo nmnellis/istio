@@ -82,7 +82,7 @@ func (s *Server) CreateCertificate(ctx context.Context, request *pb.IstioCertifi
 	certSigner := crMetadata[security.CertSigner].GetStringValue()
 	log.Debugf("cert signer from workload %s", certSigner)
 	_, _, certChainBytes, rootCertBytes := s.ca.GetCAKeyCertBundle().GetAll()
-	log.Debugf("Got all. %s  \n\n %s\n\n", string(certChainBytes),string(rootCertBytes))
+	log.Debugf("Got all. %s  \n\n %s\n\n", string(certChainBytes), string(rootCertBytes))
 	certOpts := ca.CertOpts{
 		SubjectIDs: caller.Identities,
 		TTL:        time.Duration(request.ValidityDuration) * time.Second,
@@ -94,13 +94,13 @@ func (s *Server) CreateCertificate(ctx context.Context, request *pb.IstioCertifi
 	var respCertChain []string
 	if certSigner == "" {
 		cert, signErr = s.ca.Sign([]byte(request.Csr), certOpts)
-			log.Debugf("signed cert signer nil %s", string(cert))
+		log.Debugf("signed cert signer nil %s", string(cert))
 
 	} else {
 		respCertChain, signErr = s.ca.SignWithCertChain([]byte(request.Csr), certOpts)
 	}
 	if signErr != nil {
-		serverCaLog.Errorf("CSR signing error (%v)", signErr.Error())
+		log.Errorf("CSR signing error (%v)", signErr.Error())
 		s.monitoring.GetCertSignError(signErr.(*caerror.Error).ErrorType()).Increment()
 		return nil, status.Errorf(signErr.(*caerror.Error).HTTPErrorCode(), "CSR signing error (%v)", signErr.(*caerror.Error))
 	}
@@ -118,8 +118,7 @@ func (s *Server) CreateCertificate(ctx context.Context, request *pb.IstioCertifi
 		CertChain: respCertChain,
 	}
 	s.monitoring.Success.Increment()
-	serverCaLog.Debug("CSR successfully signed.")
-	log.Debugf("CSR successfully signed. %s", certSigner)
+	log.Debug("CSR successfully signed.")
 	return response, nil
 }
 
